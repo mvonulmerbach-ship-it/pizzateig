@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#c1442a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-512.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pizzaiolo">
+<title>Pizzaiolo – Teigrechner</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#faf7f2; --card:#ffffff; --ink:#1c1b18; --muted:#6b6862; --line:#e7e3da;
+  --brand:#c1442a; --brand-soft:#fbe9e3; --accent:#d99a2b; --accent-soft:#fbf1dd;
+  --good:#3b6e58; --good-soft:#e7f0ea; --bad:#b4452f; --bad-soft:#f8e7e2;
+  --warn:#8a6410; --warn-soft:#fbf1dd;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 18px rgba(0,0,0,.06);
+  --radius:16px;
+}
+[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#131210; --card:#1e1c19; --ink:#eceae4; --muted:#9d988e; --line:#33302a;
+  --brand:#e2694c; --brand-soft:#2a1b16; --accent:#e0ae52; --accent-soft:#2a2116;
+  --good:#5aa483; --good-soft:#18241d; --bad:#e0826b; --bad-soft:#2c1b15;
+  --warn:#e0ae52; --warn-soft:#2a2116;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+.wrap{max-width:580px;margin:0 auto;padding:0 16px;
+  padding-bottom:calc(32px + env(safe-area-inset-bottom))}
+
+header{position:sticky;top:0;z-index:30;background:var(--bg);
+  padding:calc(12px + env(safe-area-inset-top)) 0 8px;display:flex;align-items:center;gap:8px}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.4px;flex:1}
+.brand b{color:var(--brand)}
+.themebtn{font-size:16px;line-height:1;padding:9px 11px;border-radius:11px;
+  background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+.themebtn:active{transform:translateY(1px)}
+
+.tabs{display:flex;gap:8px;margin:6px 0 14px;position:sticky;top:56px;z-index:29;
+  background:var(--bg);padding-bottom:6px}
+.tab{flex:1;text-align:center;padding:11px 4px;border-radius:14px;font-weight:700;font-size:13.5px;
+  background:var(--card);border:1px solid var(--line);color:var(--muted);box-shadow:var(--shadow)}
+.tab.on{color:#fff;background:var(--brand);border-color:transparent}
+.tab:active{transform:translateY(1px)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.row:last-child{margin-bottom:0}
+.lab{font-size:14.5px;font-weight:600}
+.lab small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:1px}
+.val{font-size:15px;font-weight:800;white-space:nowrap;color:var(--brand);min-width:74px;text-align:right}
+
+.stepper{display:flex;align-items:center;gap:2px;background:var(--bg);border:1px solid var(--line);
+  border-radius:12px;overflow:hidden}
+.stepper button{width:40px;height:38px;font-size:19px;font-weight:600;color:var(--brand)}
+.stepper button:active{background:var(--brand-soft)}
+.stepper input{width:58px;height:38px;border:none;background:transparent;text-align:center;
+  font-size:15px;font-weight:800;-moz-appearance:textfield}
+.stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:var(--line)}
+input[type=range]::-moz-range-track{height:6px;border-radius:99px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+  background:var(--brand);border:3px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,.25);margin-top:-9px}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--brand);
+  border:3px solid var(--card);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.slot{margin-bottom:16px}
+.slot:last-child{margin-bottom:0}
+.slot .row{margin-bottom:0}
+
+.seg{display:flex;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:4px}
+.seg button{flex:1;padding:9px 4px;border-radius:10px;font-size:13px;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--brand);color:#fff;box-shadow:var(--shadow)}
+
+time-input,input[type=time]{font-size:15px;font-weight:700}
+input[type=time]{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+
+.res{background:linear-gradient(160deg,var(--brand),#8f2f1c);color:#fff;border:none}
+[data-theme="dark"] .res{background:linear-gradient(160deg,#8f3a26,#5c2416)}
+.res h2{color:rgba(255,255,255,.72)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tile{background:rgba(255,255,255,.13);border-radius:13px;padding:11px 12px}
+.tile .k{font-size:11.5px;letter-spacing:.4px;text-transform:uppercase;opacity:.8}
+.tile .v{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.2;margin-top:2px}
+.tile .s{font-size:11.5px;opacity:.78}
+.tile.wide{grid-column:1/-1}
+.res .foot{margin-top:11px;font-size:12.5px;opacity:.85;line-height:1.45}
+
+.note{border-radius:12px;padding:10px 12px;font-size:12.8px;line-height:1.45;margin-top:9px;
+  background:var(--warn-soft);color:var(--warn);border:1px solid rgba(0,0,0,.05)}
+.note.bad{background:var(--bad-soft);color:var(--bad)}
+.note.ok{background:var(--good-soft);color:var(--good)}
+.note b{display:block}
+
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:flex;gap:11px;padding:11px 0;border-top:1px solid var(--line)}
+.steps li:first-child{border-top:none;padding-top:0}
+.steps .t{font-weight:800;font-size:15px;min-width:70px;color:var(--brand);font-variant-numeric:tabular-nums}
+.steps .d{font-size:14px}
+.steps .d small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.day{font-size:11px;color:var(--muted);font-weight:600}
+
+table{width:100%;border-collapse:collapse;font-size:13.2px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);
+  padding:0 6px 6px 0;font-weight:700}
+td{padding:7px 6px 7px 0;border-top:1px solid var(--line);vertical-align:top}
+td:last-child,th:last-child{text-align:right;padding-right:0;white-space:nowrap}
+.p{font-size:13.4px;color:var(--muted);line-height:1.55;margin:0 0 10px}
+.p:last-child{margin-bottom:0}
+.p b{color:var(--ink)}
+.hide{display:none}
+footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">🍕 <b>Pizzaiolo</b></div>
+  <button class="themebtn" id="themebtn" aria-label="Design wechseln">🌙</button>
+</header>
+
+<div class="tabs">
+  <button class="tab on" data-tab="calc">Rechner</button>
+  <button class="tab" data-tab="plan">Zeitplan</button>
+  <button class="tab" data-tab="know">Wissen</button>
+</div>
+
+<!-- ============ RECHNER ============ -->
+<section id="calc">
+
+  <div class="card res" id="result">
+    <h2>Zutaten</h2>
+    <div class="grid">
+      <div class="tile"><div class="k">Mehl</div><div class="v" id="rMehl">–</div></div>
+      <div class="tile"><div class="k">Wasser</div><div class="v" id="rWasser">–</div><div class="s" id="rHyd"></div></div>
+      <div class="tile"><div class="k">Salz</div><div class="v" id="rSalz">–</div><div class="s" id="rSalzP"></div></div>
+      <div class="tile"><div class="k" id="kHefe">Trockenhefe</div><div class="v" id="rHefe">–</div><div class="s" id="rHefeS"></div></div>
+      <div class="tile wide"><div class="k">Wassertemperatur</div><div class="v" id="rWtemp">–</div><div class="s" id="rWtempS"></div></div>
+    </div>
+    <div class="foot" id="rFoot"></div>
+  </div>
+
+  <div id="hints"></div>
+
+  <div class="card">
+    <h2>Teigmenge</h2>
+    <div class="row">
+      <div class="lab">Anzahl Ballen</div>
+      <div class="stepper">
+        <button data-step="balls:-1">−</button>
+        <input type="number" id="balls" value="6" min="1" max="60" inputmode="numeric">
+        <button data-step="balls:1">+</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="lab">Ballengewicht in g<small>250 g = ca. 30 cm Pizza</small></div>
+      <div class="stepper">
+        <button data-step="ballw:-5">−</button>
+        <input type="number" id="ballw" value="270" min="150" max="400" step="5" inputmode="numeric">
+        <button data-step="ballw:5">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Mehl &amp; Teig</h2>
+    <div class="slot">
+      <div class="row"><div class="lab">Eiweiß im Mehl<small id="proteinHint"></small></div><div class="val" id="vProtein">9,8 g</div></div>
+      <input type="range" id="protein" min="8.5" max="15" step="0.1" value="9.8">
+    </div>
+    <div class="slot">
+      <div class="row"><div class="lab">Hydration<small id="hydHint"></small></div><div class="val" id="vHyd">59 %</div></div>
+      <input type="range" id="hyd" min="52" max="72" step="0.5" value="59">
+    </div>
+    <div class="slot">
+      <div class="row"><div class="lab">Salz</div><div class="val" id="vSalt">3,2 %</div></div>
+      <input type="range" id="salt" min="2" max="4" step="0.1" value="3.2">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Gärführung</h2>
+    <div class="slot">
+      <div class="seg" id="segMode">
+        <button data-mode="cold" class="on">Kühlschrank</button>
+        <button data-mode="warm">Raumtemperatur</button>
+      </div>
+    </div>
+
+    <div id="coldBox">
+      <div class="slot">
+        <div class="row"><div class="lab">Stockgare im Kühlschrank<small>bei 4–6 °C</small></div><div class="val" id="vFridge">24 h</div></div>
+        <div class="seg" id="segFridge" style="margin-top:6px">
+          <button data-fridge="24" class="on">24 h</button>
+          <button data-fridge="36">36 h</button>
+          <button data-fridge="48">48 h</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="warmBox" class="hide">
+      <div class="slot">
+        <div class="row"><div class="lab">Gesamtgärzeit<small>Kneten bis Backen</small></div><div class="val" id="vTime">8 h</div></div>
+        <input type="range" id="time" min="3" max="30" step="0.5" value="8">
+      </div>
+    </div>
+
+    <div class="slot">
+      <div class="row"><div class="lab">Küchentemperatur<small id="tempHint"></small></div><div class="val" id="vTemp">24 °C</div></div>
+      <input type="range" id="temp" min="14" max="36" step="0.5" value="24">
+    </div>
+
+    <div class="slot">
+      <div class="row"><div class="lab" style="margin-bottom:6px">Hefe</div></div>
+      <div class="seg" id="segYeast">
+        <button data-yeast="dry" class="on">Trockenhefe</button>
+        <button data-yeast="fresh">Frischhefe</button>
+      </div>
+    </div>
+
+    <div class="slot">
+      <div class="row"><div class="lab" style="margin-bottom:6px">Kneten</div></div>
+      <div class="seg" id="segKnead">
+        <button data-knead="2">Hand</button>
+        <button data-knead="4" class="on">Maschine</button>
+        <button data-knead="6">Spiralkneter</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ ZEITPLAN ============ -->
+<section id="plan" class="hide">
+  <div class="card">
+    <h2>Wann soll die erste Pizza im Ofen sein?</h2>
+    <div class="row" style="margin-bottom:0">
+      <div class="lab">Backbeginn</div>
+      <input type="time" id="bakeTime" value="18:30">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ablauf rückwärts gerechnet</h2>
+    <ol class="steps" id="planSteps"></ol>
+  </div>
+
+  <div class="card">
+    <h2>Ausgare erkennen</h2>
+    <p class="p">Der Ballen ist fertig, wenn er sichtbar aufgegangen ist, sich weich und luftig anfühlt und auf leichten Fingerdruck nur <b>langsam</b> zurückfedert. Springt er sofort zurück, braucht er noch Zeit. Bleibt die Delle vollständig stehen, ist er über der Gare.</p>
+    <p class="p">Die Zeiten oben sind Richtwerte. Bei schwankender Küchentemperatur richte dich nach dem Ballen, nicht nach der Uhr.</p>
+  </div>
+</section>
+
+<!-- ============ WISSEN ============ -->
+<section id="know" class="hide">
+
+  <div class="card">
+    <h2>Mehl nach Eiweißgehalt</h2>
+    <table>
+      <thead><tr><th>Eiweiß</th><th>Hydration</th><th>max. warm</th><th>max. kalt</th></tr></thead>
+      <tbody>
+        <tr><td>unter 10,5 g</td><td>58–59 %</td><td>10 h</td><td>24 h</td></tr>
+        <tr><td>10,5–11,9 g</td><td>60–62 %</td><td>12 h</td><td>30 h</td></tr>
+        <tr><td>12,0–13,4 g</td><td>63–64 %</td><td>12 h</td><td>36 h</td></tr>
+        <tr><td>ab 13,5 g</td><td>65–67 %</td><td>16 h</td><td>48 h</td></tr>
+      </tbody>
+    </table>
+    <p class="p" style="margin-top:10px">Deutsche Mühlen veröffentlichen keine W-Werte. Das Eiweiß pro 100 g von der Nährwerttabelle ist der beste verfügbare Anhaltspunkt.</p>
+  </div>
+
+  <div class="card">
+    <h2>Stärkeres Mehl vor Ort</h2>
+    <table>
+      <thead><tr><th>Laden</th><th>Produkt</th><th>Eiweiß</th></tr></thead>
+      <tbody>
+        <tr><td>REWE</td><td>Frießinger Mühle „Finezza für Pasta &amp; Pizza“</td><td>12,9 g</td></tr>
+        <tr><td>Kaufland</td><td>K Favourites Pizzamehl Tipo 00</td><td>12,0 g</td></tr>
+        <tr><td>Kaufland</td><td>Frießinger „La Farina 14“ Tipo 00</td><td>14,0 g</td></tr>
+        <tr><td>METRO</td><td>Caputo Pizzeria oder Cuoco, 5 kg</td><td>13,0 g</td></tr>
+        <tr><td>Notfall</td><td>Weltgold Weizenmehl Type 550 „backstark“</td><td>12,0 g</td></tr>
+      </tbody>
+    </table>
+    <p class="p" style="margin-top:10px">Regalsortiment schwankt je Filiale. Angaben sind Herstellerwerte, keine Bestandsgarantie.</p>
+  </div>
+
+  <div class="card">
+    <h2>Wenn es schiefgeht</h2>
+    <table>
+      <tbody>
+        <tr><td>Zerläuft flach, klebt, reißt beim Öffnen</td><td>Übergare</td></tr>
+        <tr><td>Geht kaum auf, zieht sich zurück</td><td>Untergare</td></tr>
+        <tr><td>Höhe gut, Rand aber weich</td><td>Ballen zu locker geschliffen</td></tr>
+        <tr><td>Erst gut, dann über Nacht kollabiert</td><td>Mehl zu schwach</td></tr>
+        <tr><td>Rand bleibt blass, Boden verbrennt</td><td>Stein zu heiß, Oberhitze zu niedrig</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Warum Hitze den Teig ruiniert</h2>
+    <p class="p">Die Hefeaktivität steigt exponentiell mit der Temperatur — pro 10 °C etwa das Zwei- bis Dreifache. Bei Übergare fällt der pH-Wert, teigeigene Proteasen bauen das Glutengerüst ab, und der Ballen verliert seine Rückstellkraft. Deshalb muss die Hefemenge im Sommer drastisch sinken, nicht nur ein wenig.</p>
+    <p class="p">Zweiter Faktor ist das Mehl: Wenig Eiweiß heißt schwächeres Glutennetz, also weniger Wasser und weniger Zeit. In der Kälte laufen die glutenabbauenden Enzyme deutlich langsamer — deshalb trägt ein schwaches Mehl 24 Stunden im Kühlschrank, aber keine 24 Stunden bei Raumtemperatur.</p>
+  </div>
+
+  <div class="card">
+    <h2>Hefe unter 0,3 g abmessen</h2>
+    <p class="p">Normale Küchenwaagen schaffen das nicht. Lösung: <b>1,0 g Trockenhefe in 100 g Wasser</b> auflösen, 15 Minuten stehen lassen, gut umrühren. 10 g dieser Lösung entsprechen 0,10 g Hefe. Die entnommene Menge vom Rezeptwasser abziehen.</p>
+  </div>
+
+  <div class="card">
+    <h2>Backen</h2>
+    <p class="p">Steintemperatur <b>430–480 °C</b>, 60–90 Sekunden. Ofen mindestens 45 Minuten vorheizen, damit der Stein wirklich durchgeheizt ist — die Anzeige lügt fast immer.</p>
+  </div>
+</section>
+
+<footer>Alle Hefemengen sind Richtwerte · Stand 08/2026</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- Persistenz (best effort) ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem("pz_"+k); return v===null?d:JSON.parse(v);}catch(e){return d;} },
+  set(k, v){ try{ localStorage.setItem("pz_"+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ---------- Zustand ---------- */
+const S = {
+  balls: 6, ballw: 270, protein: 9.8, hyd: 59, salt: 3.2,
+  mode: "cold", fridge: 24, time: 8, temp: 24,
+  yeast: "dry", knead: 4, bake: "18:30"
+};
+Object.keys(S).forEach(k => { const v = store.get(k, null); if(v!==null && v!==undefined) S[k]=v; });
+
+/* ---------- Hilfsfunktionen ---------- */
+const de = (n, d=0) => n.toLocaleString("de-DE", {minimumFractionDigits:d, maximumFractionDigits:d});
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+
+function interp(x, xs, ys){
+  if(x <= xs[0]) { const m = (ys[1]-ys[0])/(xs[1]-xs[0]); return ys[0] + m*(x-xs[0]); }
+  const n = xs.length-1;
+  if(x >= xs[n]) { const m = (ys[n]-ys[n-1])/(xs[n]-xs[n-1]); return ys[n] + m*(x-xs[n]); }
+  for(let i=0;i<n;i++){
+    if(x <= xs[i+1]){
+      const f = (x-xs[i])/(xs[i+1]-xs[i]);
+      return ys[i] + f*(ys[i+1]-ys[i]);
+    }
+  }
+  return ys[n];
+}
+
+/* Trockenhefe in g pro 1000 g Mehl, Raumtemperaturführung.
+   Kalibriert auf die gedruckte Tabelle: y(T) bei 7 h und Zeitexponent b(T). */
+const T_ANCHOR = [19,22,25,28,31];
+const Y7       = [0.80,0.60,0.45,0.30,0.20];
+const BEXP     = [0.944,1.125,1.221,1.306,1.306];
+
+function yeastWarm(temp, hours){
+  const T = clamp(temp, 14, 36);
+  const t = clamp(hours, 2, 48);
+  const y7 = Math.exp(interp(T, T_ANCHOR, Y7.map(Math.log)));
+  const b  = interp(T, T_ANCHOR, BEXP);
+  return y7 * Math.pow(7/t, b);
+}
+
+/* Kühlschrankführung: feste Hefemenge je Stockgare-Dauer */
+const FRIDGE_YEAST = {24:1.0, 36:0.8, 48:0.7};
+/* Ausgare der Ballen bei Raumtemperatur nach Kühlschrank, in Stunden */
+const PROOF_H = [6.5,5.5,4.5,3.5,2.75];
+function proofHours(temp){ return clamp(interp(clamp(temp,14,36), T_ANCHOR, PROOF_H), 1.5, 10); }
+
+/* Mehlempfehlung nach Eiweiß */
+function flourSpec(p){
+  if(p < 10.5)  return {hyd:[58,59], warm:10, cold:24, txt:"schwaches Mehl"};
+  if(p < 12.0)  return {hyd:[60,62], warm:12, cold:30, txt:"mittleres Mehl"};
+  if(p < 13.5)  return {hyd:[63,64], warm:12, cold:36, txt:"kräftiges Mehl"};
+  return {hyd:[65,67], warm:16, cold:48, txt:"starkes Mehl"};
+}
+
+/* ---------- Berechnung ---------- */
+function compute(){
+  const spec = flourSpec(S.protein);
+  const totalDough = S.balls * S.ballw;
+
+  let yDry;              // g Trockenhefe pro 1000 g Mehl
+  let totalHours;        // Kneten bis Backen
+  let proofH = 0;
+  if(S.mode === "cold"){
+    yDry = FRIDGE_YEAST[S.fridge] || 1.0;
+    proofH = proofHours(S.temp);
+    totalHours = 1 + S.fridge + proofH;
+  } else {
+    totalHours = S.time;
+    yDry = yeastWarm(S.temp, S.time);
+  }
+
+  const yPct = yDry/1000;
+  const flour = totalDough / (1 + S.hyd/100 + S.salt/100 + yPct);
+  const water = flour * S.hyd/100;
+  const salt  = flour * S.salt/100;
+  const yeast = flour * yPct * (S.yeast === "fresh" ? 3 : 1);
+
+  const wtemp = clamp(2*23 - S.temp - S.knead, -2, 45);
+
+  return {spec, totalDough, flour, water, salt, yeast, yDry, wtemp, totalHours, proofH};
+}
+
+/* ---------- Rendering ---------- */
+function render(){
+  const c = compute();
+
+  document.getElementById("rMehl").textContent   = de(Math.round(c.flour)) + " g";
+  document.getElementById("rWasser").textContent = de(Math.round(c.water)) + " g";
+  document.getElementById("rHyd").textContent    = de(S.hyd,1).replace(",0","") + " % Hydration";
+  document.getElementById("rSalz").textContent   = de(Math.round(c.salt)) + " g";
+  document.getElementById("rSalzP").textContent  = de(S.salt,1) + " % auf Mehl";
+
+  const isFresh = S.yeast === "fresh";
+  document.getElementById("kHefe").textContent = isFresh ? "Frischhefe" : "Trockenhefe";
+  const yg = c.yeast;
+  document.getElementById("rHefe").textContent = (yg < 1 ? de(yg,2) : yg < 10 ? de(yg,2) : de(yg,1)) + " g";
+  document.getElementById("rHefeS").textContent = de(c.yDry*(isFresh?3:1), 2) + " g je kg Mehl";
+
+  document.getElementById("rWtemp").textContent = de(Math.round(c.wtemp)) + " °C";
+  document.getElementById("rWtempS").textContent = "Ziel: Teig 22–24 °C nach dem Kneten";
+
+  document.getElementById("rFoot").textContent =
+    de(S.balls) + " Ballen à " + de(S.ballw) + " g · Teig gesamt " + de(Math.round(c.totalDough)) + " g · "
+    + "Gesamtzeit " + de(c.totalHours,1).replace(",0","") + " h";
+
+  /* Hinweise */
+  const maxH = S.mode === "cold" ? c.spec.cold : c.spec.warm;
+  const relevant = S.mode === "cold" ? S.fridge : S.time;
+  document.getElementById("hints").innerHTML = "";
+  const add = (cls, title, text) => {
+    const d = document.createElement("div");
+    d.className = "note " + cls;
+    d.innerHTML = "<b>"+title+"</b>"+text;
+    document.getElementById("hints").appendChild(d);
+  };
+
+  if(relevant > maxH){
+    add("bad","Führung zu lang für dieses Mehl",
+      "Ein Mehl mit " + de(S.protein,1) + " g Eiweiß trägt " +
+      (S.mode==="cold" ? "höchstens rund " + de(c.spec.cold) + " h im Kühlschrank." : "höchstens rund " + de(c.spec.warm) + " h bei Raumtemperatur.") +
+      " Darüber zerläuft der Ballen. Kürzer führen oder stärkeres Mehl nehmen.");
+  }
+  if(S.hyd > c.spec.hyd[1] + 1){
+    add("bad","Hydration zu hoch",
+      "Für " + de(S.protein,1) + " g Eiweiß sind " + c.spec.hyd[0] + "–" + c.spec.hyd[1] +
+      " % realistisch. Mehr Wasser kann dieses Glutennetz nicht binden.");
+  }
+  if(c.yeast < 0.3 && !isFresh){
+    add("", "Hefemenge unter 0,3 g",
+      "Das wiegt keine Küchenwaage. 1,0 g Trockenhefe in 100 g Wasser auflösen, dann " +
+      de(c.yeast*100, 0) + " g dieser Lösung verwenden und vom Rezeptwasser abziehen.");
+  }
+  if(c.wtemp < 6){
+    add("", "Eiswasser nötig",
+      "Bei " + de(S.temp,1).replace(",0","") + " °C Küchentemperatur brauchst du " + de(Math.round(c.wtemp)) +
+      " °C Wasser. Wasser vorher in den Gefrierschrank oder mit Eiswürfeln arbeiten.");
+  }
+  if(S.mode === "warm" && S.temp >= 29 && S.time >= 12){
+    add("", "Enges Zeitfenster",
+      "Bei dieser Wärme liegen zwischen „noch nicht“ und „schon zerlaufen“ oft weniger als 45 Minuten. Die Kühlschrankführung ist hier deutlich sicherer.");
+  }
+
+  /* Slider-Anzeigen */
+  document.getElementById("vProtein").textContent = de(S.protein,1) + " g";
+  document.getElementById("proteinHint").textContent =
+    c.spec.txt + " · empfohlen " + c.spec.hyd[0] + "–" + c.spec.hyd[1] + " % Wasser";
+  document.getElementById("vHyd").textContent = de(S.hyd,1).replace(",0","") + " %";
+  document.getElementById("hydHint").textContent =
+    "Empfehlung für dieses Mehl: " + c.spec.hyd[0] + "–" + c.spec.hyd[1] + " %";
+  document.getElementById("vSalt").textContent = de(S.salt,1) + " %";
+  document.getElementById("vTemp").textContent = de(S.temp,1).replace(",0","") + " °C";
+  document.getElementById("tempHint").textContent = S.mode === "cold"
+    ? "bestimmt die Ausgare: " + de(c.proofH,1).replace(",0","") + " h"
+    : "bestimmt die Hefemenge";
+  document.getElementById("vTime").textContent = de(S.time,1).replace(",0","") + " h";
+  document.getElementById("vFridge").textContent = S.fridge + " h";
+
+  renderPlan(c);
+}
+
+/* ---------- Zeitplan ---------- */
+function renderPlan(c){
+  const [hh, mm] = (S.bake || "18:30").split(":").map(Number);
+  const bake = new Date(2000,0,2, hh||18, mm||30, 0);
+  const at = (hoursBefore) => new Date(bake.getTime() - hoursBefore*3600*1000);
+
+  const steps = [];
+  if(S.mode === "cold"){
+    const total = c.totalHours;
+    steps.push([at(total), "Kneten", "Wasser " + de(Math.round(c.wtemp)) + " °C · Teig 22–24 °C anpeilen"]);
+    steps.push([at(total-1), "In den Kühlschrank", "Stockgare " + S.fridge + " h bei 4–6 °C"]);
+    steps.push([at(c.proofH), "Ballen formen", de(S.balls) + " × " + de(S.ballw) + " g · straff rundschleifen"]);
+    steps.push([at(0.75), "Ofen an", "Stein mindestens 45 Minuten durchheizen"]);
+    steps.push([at(0), "Backen", "430–480 °C · 60–90 Sekunden"]);
+  } else {
+    const total = S.time;
+    const bulk = total/3;
+    steps.push([at(total), "Kneten", "Wasser " + de(Math.round(c.wtemp)) + " °C · Teig 22–24 °C anpeilen"]);
+    steps.push([at(total-0.33), "Stockgare", de(bulk,1).replace(",0","") + " h abgedeckt bei " + de(S.temp,1).replace(",0","") + " °C"]);
+    steps.push([at(total-bulk), "Ballen formen", de(S.balls) + " × " + de(S.ballw) + " g · dann " + de(total-bulk,1).replace(",0","") + " h Ballengare"]);
+    steps.push([at(0.75), "Ofen an", "Stein mindestens 45 Minuten durchheizen"]);
+    steps.push([at(0), "Backen", "430–480 °C · 60–90 Sekunden"]);
+  }
+
+  const ol = document.getElementById("planSteps");
+  ol.innerHTML = "";
+  const multiDay = steps.some(([d]) => d.getDate() !== 2);
+  steps.forEach(([d, title, sub]) => {
+    const dayOff = d.getDate() - 2;
+    const dayTxt = !multiDay ? "" :
+      dayOff === 0 ? "Backtag" : dayOff === -1 ? "Vortag" : Math.abs(dayOff) + " Tage vorher";
+    const li = document.createElement("li");
+    li.innerHTML =
+      '<div class="t">' + String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0") +
+      (dayTxt ? '<div class="day">' + dayTxt + '</div>' : '') + '</div>' +
+      '<div class="d">' + title + '<small>' + sub + '</small></div>';
+    ol.appendChild(li);
+  });
+}
+
+/* ---------- Eingaben verdrahten ---------- */
+function set(key, value){
+  S[key] = value;
+  store.set(key, value);
+  render();
+}
+
+["protein","hyd","salt","temp","time"].forEach(id => {
+  const el = document.getElementById(id);
+  el.value = S[id];
+  el.addEventListener("input", () => set(id, parseFloat(el.value)));
+});
+
+["balls","ballw"].forEach(id => {
+  const el = document.getElementById(id);
+  el.value = S[id];
+  el.addEventListener("change", () => {
+    const v = clamp(parseInt(el.value||"0",10) || 1, +el.min, +el.max);
+    el.value = v; set(id, v);
+  });
+});
+
+document.querySelectorAll("[data-step]").forEach(b => {
+  b.addEventListener("click", () => {
+    const [id, delta] = b.dataset.step.split(":");
+    const el = document.getElementById(id);
+    const v = clamp((parseFloat(el.value)||0) + parseFloat(delta), +el.min, +el.max);
+    el.value = v; set(id, v);
+  });
+});
+
+function segify(containerId, attr, key, cast){
+  const box = document.getElementById(containerId);
+  box.querySelectorAll("button").forEach(b => {
+    b.addEventListener("click", () => {
+      box.querySelectorAll("button").forEach(x => x.classList.remove("on"));
+      b.classList.add("on");
+      set(key, cast(b.dataset[attr]));
+      if(key === "mode") syncMode();
+    });
+    if(cast(b.dataset[attr]) === S[key]) {
+      box.querySelectorAll("button").forEach(x => x.classList.remove("on"));
+      b.classList.add("on");
+    }
+  });
+}
+segify("segMode","mode","mode", String);
+segify("segFridge","fridge","fridge", Number);
+segify("segYeast","yeast","yeast", String);
+segify("segKnead","knead","knead", Number);
+
+function syncMode(){
+  document.getElementById("coldBox").classList.toggle("hide", S.mode !== "cold");
+  document.getElementById("warmBox").classList.toggle("hide", S.mode !== "warm");
+}
+syncMode();
+
+const bt = document.getElementById("bakeTime");
+bt.value = S.bake;
+bt.addEventListener("input", () => set("bake", bt.value));
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
+    t.classList.add("on");
+    ["calc","plan","know"].forEach(id =>
+      document.getElementById(id).classList.toggle("hide", id !== t.dataset.tab));
+    window.scrollTo({top:0, behavior:"instant"});
+  });
+});
+
+/* ---------- Theme ---------- */
+const tb = document.getElementById("themebtn");
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  tb.textContent = t === "dark" ? "☀️" : "🌙";
+  document.querySelector('meta[name=theme-color]').setAttribute("content", t === "dark" ? "#131210" : "#c1442a");
+}
+let theme = store.get("theme", null) ||
+  (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+applyTheme(theme);
+tb.addEventListener("click", () => {
+  theme = theme === "dark" ? "light" : "dark";
+  store.set("theme", theme);
+  applyTheme(theme);
+});
+
+render();
+
+/* ---------- Offline ---------- */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>

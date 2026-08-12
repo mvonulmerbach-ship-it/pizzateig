@@ -1,0 +1,17 @@
+{
+  "name": "Pizzaiolo – Teigrechner",
+  "short_name": "Pizzaiolo",
+  "description": "Neapolitanischer Pizzateig: Mengen, Hefemenge nach Temperatur, Wassertemperatur und Zeitplan.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf7f2",
+  "theme_color": "#c1442a",
+  "lang": "de",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
