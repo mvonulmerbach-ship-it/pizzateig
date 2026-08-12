@@ -49,8 +49,9 @@ header{position:sticky;top:0;z-index:30;background:var(--bg);
 
 .tabs{display:flex;gap:8px;margin:6px 0 14px;position:sticky;top:56px;z-index:29;
   background:var(--bg);padding-bottom:6px}
-.tab{flex:1;text-align:center;padding:11px 4px;border-radius:14px;font-weight:700;font-size:13.5px;
+.tab{flex:1;text-align:center;padding:11px 2px;border-radius:14px;font-weight:700;font-size:12.5px;
   background:var(--card);border:1px solid var(--line);color:var(--muted);box-shadow:var(--shadow)}
+.tabs{gap:6px}
 .tab.on{color:#fff;background:var(--brand);border-color:transparent}
 .tab:active{transform:translateY(1px)}
 
@@ -125,6 +126,46 @@ td:last-child,th:last-child{text-align:right;padding-right:0;white-space:nowrap}
 .p b{color:var(--ink)}
 .hide{display:none}
 footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
+
+/* Belag */
+.ing{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line)}
+.ing:first-child{border-top:none;padding-top:0}
+.ing .chk{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;background:var(--bg)}
+.ing.on .chk{background:var(--brand);border-color:var(--brand)}
+.ing .nm{flex:1;font-size:14.5px;font-weight:600}
+.ing .nm small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);line-height:1.35}
+.ing .amt{text-align:right;white-space:nowrap}
+.ing .amt b{font-size:15.5px;font-weight:800;color:var(--brand)}
+.ing .amt small{display:block;font-size:11.5px;color:var(--muted)}
+.ing.off .amt{opacity:.28}
+.vrow{padding:12px 0;border-top:1px solid var(--line)}
+.vrow:first-child{border-top:none;padding-top:0}
+.vrow.zero .vname,.vrow.zero .vbase{opacity:.45}
+.vhead{display:flex;align-items:center;gap:10px}
+.vname{flex:1;font-size:15px;font-weight:700}
+.vname small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:1px}
+.stepper.sm button{width:34px;height:34px;font-size:17px}
+.stepper.sm input{width:42px;height:34px;font-size:14px}
+.vbase{margin-top:8px}
+.vbase .seg{padding:3px}
+.vbase .seg button{padding:6px 4px;font-size:12px}
+.openbar{border-radius:12px;padding:10px 12px;font-size:13.2px;font-weight:600;text-align:center}
+.openbar.ok{background:var(--good-soft);color:var(--good)}
+.openbar.warn{background:var(--warn-soft);color:var(--warn)}
+.openbar.bad{background:var(--bad-soft);color:var(--bad)}
+.shop{list-style:none;margin:0;padding:0}
+.shop li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.18);font-size:14px}
+.shop li:first-child{border-top:none;padding-top:0}
+.shop li b{font-weight:800;white-space:nowrap}
+.adj{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.adj:first-child{border-top:none}
+.adj .nm{flex:1}
+.adj input{width:62px;height:34px;text-align:center;font-size:14px;font-weight:700;
+  background:var(--bg);border:1px solid var(--line);border-radius:9px;-moz-appearance:textfield}
+.adj input::-webkit-outer-spin-button,.adj input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.adj span{font-size:11.5px;color:var(--muted);width:52px}
+.linkbtn{font-size:13px;font-weight:700;color:var(--brand);padding:4px 0}
 </style>
 </head>
 <body>
@@ -136,8 +177,9 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
 </header>
 
 <div class="tabs">
-  <button class="tab on" data-tab="calc">Rechner</button>
+  <button class="tab on" data-tab="calc">Teig</button>
   <button class="tab" data-tab="plan">Zeitplan</button>
+  <button class="tab" data-tab="top">Belag</button>
   <button class="tab" data-tab="know">Wissen</button>
 </div>
 
@@ -268,6 +310,60 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
   </div>
 </section>
 
+<!-- ============ BELAG ============ -->
+<section id="top" class="hide">
+
+  <div class="card res">
+    <h2>Einkaufsliste</h2>
+    <ul class="shop" id="shopList"></ul>
+    <div class="foot" id="shopFoot"></div>
+  </div>
+
+  <div class="card">
+    <h2>Verteilung</h2>
+    <div class="row">
+      <div class="lab">Teigballen gesamt<small>identisch mit dem Teigrechner</small></div>
+      <div class="stepper">
+        <button data-step="balls:-1">&minus;</button>
+        <input type="number" id="balls2" value="6" min="1" max="60" inputmode="numeric">
+        <button data-step="balls:1">+</button>
+      </div>
+    </div>
+    <div class="openbar ok" id="openInfo"></div>
+  </div>
+
+  <div class="card">
+    <h2>Sorten</h2>
+    <div id="varList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Salami</h2>
+    <div class="seg" id="segSalami">
+      <button data-salami="salamiM">Minischeiben</button>
+      <button data-salami="salamiN">Normale Scheiben</button>
+    </div>
+    <p class="p" style="margin-top:10px">Gilt f&uuml;r Salami und Spezial gemeinsam &mdash; entweder oder, nicht beides.</p>
+  </div>
+
+  <div class="card">
+    <h2>Freie Sorte zusammenstellen</h2>
+    <div id="freiList"></div>
+  </div>
+
+  <div class="card">
+    <button class="linkbtn" id="toggleAdj">Mengen anpassen &#9662;</button>
+    <div id="adjBox" class="hide" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Grundlage der Werte</h2>
+    <p class="p">Die Ergiebigkeiten stammen aus deiner Praxis, nicht aus einer Norm: Ein Galbani-Ballen mit 125 g reicht f&uuml;r 1,5 Pizzen, eine Dose gesch&auml;lte Tomaten f&uuml;r 3, Cr&egrave;me fra&icirc;che 200 g f&uuml;r 3, Gorgonzola 200 g f&uuml;r 5, Taleggio 200 g f&uuml;r 4, Parmesan 200 g f&uuml;r 10&ndash;12. Salami je nach Kaliber 10 Minischeiben oder 5&ndash;6 normale Scheiben.</p>
+    <p class="p">Die K&auml;semengen gelten je Pizza, auf der dieser K&auml;se liegt. Alles l&auml;sst sich &uuml;ber &bdquo;Mengen anpassen&ldquo; &auml;ndern &mdash; die App rechnet dann mit deinen Werten weiter.</p>
+    <p class="p">Bei gr&ouml;&szlig;eren Serien lohnt schnittfester Mozzarella statt Kugeln in Lake: Er l&auml;sst sich in Ruhe vorschneiden und w&auml;ssert den Belag nicht.</p>
+  </div>
+</section>
+
 <!-- ============ WISSEN ============ -->
 <section id="know" class="hide">
 
@@ -346,7 +442,12 @@ const store = {
 const S = {
   balls: 6, ballw: 270, protein: 9.8, hyd: 59, salt: 3.2,
   mode: "cold", fridge: 24, time: 8, temp: 24,
-  yeast: "dry", knead: 4, bake: "18:30"
+  yeast: "dry", knead: 4, bake: "18:30",
+  vc: {margherita:0, quattro:0, salami:6, spezial:0, frei:0},
+  vb: {margherita:"rossa", quattro:"bianca", salami:"rossa", spezial:"rossa", frei:"rossa"},
+  salamiType: "salamiM",
+  freiIng: ["mozza","parmesan"],
+  custom: {}
 };
 Object.keys(S).forEach(k => { const v = store.get(k, null); if(v!==null && v!==undefined) S[k]=v; });
 
@@ -499,6 +600,7 @@ function render(){
   document.getElementById("vFridge").textContent = S.fridge + " h";
 
   renderPlan(c);
+  renderTop();
 }
 
 /* ---------- Zeitplan ---------- */
@@ -540,6 +642,220 @@ function renderPlan(c){
     ol.appendChild(li);
   });
 }
+
+/* ---------- Belag ---------- */
+/* pack = Packungsgroesse in g, per = reicht fuer so viele Pizzen.
+   Bei Stueckware stattdessen stk = Stueck pro Pizza. */
+const ING = {
+  tomaten:  {name:"Gesch\u00e4lte Tomaten",   pack:400, per:3,   unit:"Dose",    plural:"Dosen"},
+  creme:    {name:"Cr\u00e8me fra\u00eeche", pack:200, per:3,   unit:"Packung", plural:"Packungen"},
+  mozza:    {name:"Mozzarella",               pack:125, per:1.5, unit:"Ballen",  plural:"Ballen"},
+  parmesan: {name:"Parmesan",                 pack:200, per:11,  unit:"Packung", plural:"Packungen"},
+  gorgo:    {name:"Gorgonzola",               pack:200, per:5,   unit:"Packung", plural:"Packungen"},
+  taleggio: {name:"Taleggio",                 pack:200, per:4,   unit:"Packung", plural:"Packungen"},
+  salamiM:  {name:"Salami, Minischeiben",     stk:10,   unit:"Scheibe", plural:"Scheiben"},
+  salamiN:  {name:"Salami, normale Scheiben", stk:6,    unit:"Scheibe", plural:"Scheiben"}
+};
+const ING_ORDER = ["tomaten","creme","mozza","parmesan","gorgo","taleggio","salamiM","salamiN"];
+const FREI_WAHL = ["mozza","parmesan","gorgo","taleggio"];
+
+const VARIANTS = [
+  {id:"margherita", name:"Margherita", ing:["mozza","parmesan"]},
+  {id:"quattro",    name:"4 K\u00e4se",  ing:["mozza","parmesan","gorgo","taleggio"]},
+  {id:"salami",     name:"Salami",     ing:["mozza","parmesan","SALAMI"]},
+  {id:"spezial",    name:"Spezial",    ing:["mozza","parmesan","gorgo","SALAMI"]},
+  {id:"frei",       name:"Freie Sorte", ing:null}
+];
+
+function cfg(id){
+  const it = ING[id], c = S.custom[id] || {};
+  return {
+    pack: c.pack !== undefined ? c.pack : it.pack,
+    per:  c.per  !== undefined ? c.per  : it.per,
+    stk:  c.stk  !== undefined ? c.stk  : it.stk
+  };
+}
+function perPizza(id){
+  const c = cfg(id);
+  return ING[id].stk !== undefined ? c.stk : c.pack / c.per;
+}
+function variantIng(v){
+  if(v.id === "frei") return S.freiIng.slice();
+  return v.ing.map(x => x === "SALAMI" ? S.salamiType : x);
+}
+function variantLabel(v){
+  return variantIng(v).map(id => ING[id].name.split(",")[0]).join(" + ") || "noch nichts gew\u00e4hlt";
+}
+
+function renderTop(){
+  const total = S.balls;
+  const b2 = document.getElementById("balls2");
+  if(b2 && document.activeElement !== b2) b2.value = total;
+
+  /* Sortenliste */
+  const vl = document.getElementById("varList");
+  vl.innerHTML = "";
+  let assigned = 0;
+  VARIANTS.forEach(v => {
+    const n = S.vc[v.id] || 0;
+    assigned += n;
+    const row = document.createElement("div");
+    row.className = "vrow" + (n ? "" : " zero");
+    row.innerHTML =
+      '<div class="vhead">' +
+        '<div class="vname">' + v.name + '<small>' + variantLabel(v) + '</small></div>' +
+        '<div class="stepper sm">' +
+          '<button data-vc="' + v.id + ':-1">\u2212</button>' +
+          '<input type="number" min="0" max="60" inputmode="numeric" data-vcin="' + v.id + '" value="' + n + '">' +
+          '<button data-vc="' + v.id + ':1">+</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="vbase"><div class="seg">' +
+        '<button data-vb="' + v.id + ':rossa"' + (S.vb[v.id] === "rossa" ? ' class="on"' : '') + '>Rossa &middot; Tomate</button>' +
+        '<button data-vb="' + v.id + ':bianca"' + (S.vb[v.id] === "bianca" ? ' class="on"' : '') + '>Bianca &middot; Cr\u00e8me</button>' +
+      '</div></div>';
+    vl.appendChild(row);
+  });
+
+  vl.querySelectorAll("[data-vc]").forEach(b => b.addEventListener("click", () => {
+    const [id, d] = b.dataset.vc.split(":");
+    S.vc[id] = clamp((S.vc[id] || 0) + parseInt(d,10), 0, 60);
+    store.set("vc", S.vc); render();
+  }));
+  vl.querySelectorAll("[data-vcin]").forEach(inp => inp.addEventListener("change", () => {
+    S.vc[inp.dataset.vcin] = clamp(parseInt(inp.value||"0",10) || 0, 0, 60);
+    store.set("vc", S.vc); render();
+  }));
+  vl.querySelectorAll("[data-vb]").forEach(b => b.addEventListener("click", () => {
+    const [id, base] = b.dataset.vb.split(":");
+    S.vb[id] = base; store.set("vb", S.vb); render();
+  }));
+
+  /* offene Pizzen */
+  const open = total - assigned;
+  const bar = document.getElementById("openInfo");
+  bar.className = "openbar " + (open === 0 ? "ok" : open > 0 ? "warn" : "bad");
+  bar.textContent = open === 0
+    ? "Alle " + de(total) + " Pizzen verteilt"
+    : open > 0
+      ? "Noch " + de(open) + " von " + de(total) + " Pizzen offen"
+      : de(-open) + " Pizzen mehr verteilt als Teigballen da sind";
+
+  /* Mengen zusammenrechnen */
+  const need = {};
+  const bump = (id, n) => { if(n > 0) need[id] = (need[id] || 0) + n; };
+  VARIANTS.forEach(v => {
+    const n = S.vc[v.id] || 0;
+    if(!n) return;
+    bump(S.vb[v.id] === "bianca" ? "creme" : "tomaten", n);
+    variantIng(v).forEach(id => bump(id, n));
+  });
+
+  /* Einkaufsliste */
+  const ul = document.getElementById("shopList");
+  ul.innerHTML = "";
+  const rows = ING_ORDER.filter(id => need[id]);
+  if(!rows.length){
+    ul.innerHTML = '<li style="opacity:.85">Noch nichts verteilt \u2014 z\u00e4hle unten die Sorten hoch.</li>';
+  } else {
+    rows.forEach(id => {
+      const it = ING[id], pieces = it.stk !== undefined;
+      const amount = perPizza(id) * need[id];
+      let right;
+      if(pieces){
+        const stk = Math.ceil(amount);
+        right = de(stk) + " " + (stk === 1 ? it.unit : it.plural);
+      } else {
+        const packs = Math.ceil(amount / cfg(id).pack - 0.001);
+        right = packs + " " + (packs === 1 ? it.unit : it.plural) + " \u00b7 " + de(Math.round(amount)) + " g";
+      }
+      const li = document.createElement("li");
+      li.innerHTML = "<span>" + it.name + "</span><b>" + right + "</b>";
+      ul.appendChild(li);
+    });
+  }
+  const rossa = VARIANTS.reduce((a,v) => a + (S.vb[v.id] === "rossa" ? (S.vc[v.id]||0) : 0), 0);
+  const bianca = VARIANTS.reduce((a,v) => a + (S.vb[v.id] === "bianca" ? (S.vc[v.id]||0) : 0), 0);
+  document.getElementById("shopFoot").textContent =
+    de(assigned) + " Pizzen \u00b7 " + de(rossa) + " rossa, " + de(bianca) + " bianca";
+
+  /* Salami-Art */
+  document.querySelectorAll("#segSalami button").forEach(b =>
+    b.classList.toggle("on", b.dataset.salami === S.salamiType));
+
+  /* Freie Sorte */
+  const fl = document.getElementById("freiList");
+  fl.innerHTML = "";
+  FREI_WAHL.concat([S.salamiType]).forEach(id => {
+    const on = S.freiIng.includes(id);
+    const row = document.createElement("div");
+    row.className = "ing " + (on ? "on" : "off");
+    row.innerHTML = '<div class="chk">' + (on ? "\u2713" : "") + '</div>' +
+      '<div class="nm">' + ING[id].name + '</div>' +
+      '<div class="amt"><small>' +
+        (ING[id].stk !== undefined ? de(perPizza(id),0) + " St\u00fcck" : de(Math.round(perPizza(id))) + " g") +
+      ' je Pizza</small></div>';
+    row.addEventListener("click", () => {
+      const i = S.freiIng.indexOf(id);
+      if(i >= 0) S.freiIng.splice(i,1); else S.freiIng.push(id);
+      store.set("freiIng", S.freiIng); render();
+    });
+    fl.appendChild(row);
+  });
+
+  /* Mengen anpassen */
+  const adj = document.getElementById("adjBox");
+  if(!adj.classList.contains("hide")){
+    adj.innerHTML = "";
+    ING_ORDER.forEach(id => {
+      const it = ING[id], c = cfg(id);
+      const d = document.createElement("div");
+      d.className = "adj";
+      if(it.stk !== undefined){
+        d.innerHTML = '<div class="nm">' + it.name + '</div>' +
+          '<input type="number" min="1" max="40" step="1" data-adj="' + id + ':stk" value="' + c.stk + '">' +
+          '<span>je Pizza</span>';
+      } else {
+        d.innerHTML = '<div class="nm">' + it.name + '</div>' +
+          '<input type="number" min="50" max="2500" step="10" data-adj="' + id + ':pack" value="' + c.pack + '">' +
+          '<span>g je Packung</span>' +
+          '<input type="number" min="0.5" max="30" step="0.5" data-adj="' + id + ':per" value="' + c.per + '">' +
+          '<span>Pizzen</span>';
+      }
+      adj.appendChild(d);
+    });
+    adj.querySelectorAll("[data-adj]").forEach(inp => inp.addEventListener("change", () => {
+      const [id, field] = inp.dataset.adj.split(":");
+      const v = parseFloat(inp.value);
+      if(!isFinite(v) || v <= 0) return;
+      S.custom[id] = Object.assign({}, S.custom[id], {[field]: v});
+      store.set("custom", S.custom); render();
+    }));
+  }
+}
+
+document.getElementById("toggleAdj").addEventListener("click", () => {
+  const box = document.getElementById("adjBox");
+  const open = box.classList.toggle("hide") === false;
+  document.getElementById("toggleAdj").innerHTML = open ? "Mengen anpassen &#9652;" : "Mengen anpassen &#9662;";
+  render();
+});
+
+document.querySelectorAll("#segSalami button").forEach(b => b.addEventListener("click", () => {
+  const old = S.salamiType;
+  S.salamiType = b.dataset.salami;
+  const i = S.freiIng.indexOf(old);
+  if(i >= 0) S.freiIng[i] = S.salamiType;
+  store.set("salamiType", S.salamiType); store.set("freiIng", S.freiIng);
+  render();
+}));
+
+document.getElementById("balls2").addEventListener("change", function(){
+  const v = clamp(parseInt(this.value||"0",10) || 1, 1, 60);
+  this.value = v;
+  document.getElementById("balls").value = v;
+  set("balls", v);
+});
 
 /* ---------- Eingaben verdrahten ---------- */
 function set(key, value){
@@ -607,7 +923,7 @@ document.querySelectorAll(".tab").forEach(t => {
   t.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
     t.classList.add("on");
-    ["calc","plan","know"].forEach(id =>
+    ["calc","plan","top","know"].forEach(id =>
       document.getElementById(id).classList.toggle("hide", id !== t.dataset.tab));
     window.scrollTo({top:0, behavior:"instant"});
   });

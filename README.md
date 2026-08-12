@@ -8,6 +8,7 @@ Kleine Web-App für neapolitanischen Pizzateig. Läuft komplett im Browser, ohne
 
 - **Rechner** – Mengen für Mehl, Wasser, Salz und Hefe aus Ballenzahl, Ballengewicht, Hydration und Salzanteil. Die Hefemenge wird aus Küchentemperatur und Gärzeit berechnet, nicht aus einer festen Rezeptangabe.
 - **Zeitplan** – Rückwärtsrechnung ab dem gewünschten Backzeitpunkt: wann kneten, wann in den Kühlschrank, wann ballen, wann den Ofen anwerfen.
+- **Belag** – Die Teigballen werden auf Pizzasorten verteilt, jede Sorte wahlweise rossa oder bianca. Daraus entsteht die Einkaufsliste mit benötigten Packungen.
 - **Wissen** – Hydration und maximale Gärdauer nach Eiweißgehalt des Mehls, Einkaufsliste für stärkere Mehle, Fehlerdiagnose.
 
 ## Rechenmodell
@@ -35,6 +36,35 @@ Wassertemperatur nach der üblichen Formel `2 × Zielteigtemperatur − Mehltemp
 Frischhefe = Trockenhefe × 3.
 
 **Alle Werte sind Richtwerte.** Mehl, tatsächliche Teigtemperatur und Küchenklima verschieben das Ergebnis spürbar. Im Zweifel entscheidet der Ballen, nicht die Uhr.
+
+### Belag
+
+Jede Sorte bekommt eine Stückzahl und einen Boden (rossa = geschälte Tomaten, bianca = Crème fraîche). Die App summiert über alle Sorten und rundet auf ganze Packungen auf.
+
+| Sorte | Belag |
+|---|---|
+| Margherita | Mozzarella + Parmesan |
+| 4 Käse | Mozzarella + Parmesan + Gorgonzola + Taleggio |
+| Salami | Mozzarella + Parmesan + Salami |
+| Spezial | Mozzarella + Parmesan + Gorgonzola + Salami |
+| Freie Sorte | frei zusammenstellbar |
+
+Salami wird global auf Minischeiben oder normale Scheiben gestellt und gilt dann für Salami und Spezial gemeinsam.
+
+Ergiebigkeiten, alles Erfahrungswerte aus der eigenen Praxis:
+
+| Zutat | Packung | reicht für | pro Pizza |
+|---|---|---|---|
+| Geschälte Tomaten | 400 g (Dose) | 3 Pizzen | 133 g |
+| Crème fraîche | 200 g | 3 Pizzen | 67 g |
+| Mozzarella (Galbani) | 125 g (Ballen) | 1,5 Pizzen | 83 g |
+| Parmesan | 200 g | 10–12 Pizzen | 18 g |
+| Gorgonzola | 200 g | 5 Pizzen | 40 g |
+| Taleggio | 200 g | 4 Pizzen | 50 g |
+| Salami, Minischeiben | – | – | 10 Scheiben |
+| Salami, normale Größe | – | – | 5–6 Scheiben |
+
+Die Käsemengen gelten je Pizza, auf der dieser Käse tatsächlich liegt. Alle Werte lassen sich in der App unter „Mengen anpassen" überschreiben; die Änderungen bleiben auf dem Gerät gespeichert.
 
 ## Dateien
 
