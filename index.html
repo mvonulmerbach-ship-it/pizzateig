@@ -150,6 +150,7 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
 .vbase{margin-top:8px}
 .vbase .seg{padding:3px}
 .vbase .seg button{padding:6px 4px;font-size:12px}
+.grouphead{margin:16px 0 2px;padding-top:14px;border-top:2px solid var(--line);font-size:11px;\n  text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700}
 .openbar{border-radius:12px;padding:10px 12px;font-size:13.2px;font-weight:600;text-align:center}
 .openbar.ok{background:var(--good-soft);color:var(--good)}
 .openbar.warn{background:var(--warn-soft);color:var(--warn)}
@@ -360,6 +361,7 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
     <h2>Grundlage der Werte</h2>
     <p class="p">Die Ergiebigkeiten stammen aus deiner Praxis, nicht aus einer Norm: Ein Galbani-Ballen mit 125 g reicht f&uuml;r 1,5 Pizzen, eine Dose gesch&auml;lte Tomaten f&uuml;r 3, Cr&egrave;me fra&icirc;che 200 g f&uuml;r 3, Gorgonzola 200 g f&uuml;r 5, Taleggio 200 g f&uuml;r 4, Parmesan 200 g f&uuml;r 10&ndash;12. Salami je nach Kaliber 10 Minischeiben oder 5&ndash;6 normale Scheiben.</p>
     <p class="p">Die K&auml;semengen gelten je Pizza, auf der dieser K&auml;se liegt. Alles l&auml;sst sich &uuml;ber &bdquo;Mengen anpassen&ldquo; &auml;ndern &mdash; die App rechnet dann mit deinen Werten weiter.</p>
+    <p class="p">Bei den zus&auml;tzlichen Sorten unter &bdquo;Weitere Sorten&ldquo; sind die Grammangaben meine Richtwerte, keine Erfahrungswerte von dir &mdash; pr&uuml;f sie beim ersten Backtag nach und zieh sie unten nach.</p>
     <p class="p">Bei gr&ouml;&szlig;eren Serien lohnt schnittfester Mozzarella statt Kugeln in Lake: Er l&auml;sst sich in Ruhe vorschneiden und w&auml;ssert den Belag nicht.</p>
   </div>
 </section>
@@ -650,22 +652,58 @@ const ING = {
   tomaten:  {name:"Gesch\u00e4lte Tomaten",   pack:400, per:3,   unit:"Dose",    plural:"Dosen"},
   creme:    {name:"Cr\u00e8me fra\u00eeche", pack:200, per:3,   unit:"Packung", plural:"Packungen"},
   mozza:    {name:"Mozzarella",               pack:125, per:1.5, unit:"Ballen",  plural:"Ballen"},
+  bufala:   {name:"Mozzarella di Bufala",     pack:125, per:1.5, unit:"Ballen",  plural:"Ballen"},
   parmesan: {name:"Parmesan",                 pack:200, per:11,  unit:"Packung", plural:"Packungen"},
   gorgo:    {name:"Gorgonzola",               pack:200, per:5,   unit:"Packung", plural:"Packungen"},
   taleggio: {name:"Taleggio",                 pack:200, per:4,   unit:"Packung", plural:"Packungen"},
   salamiM:  {name:"Salami, Minischeiben",     stk:10,   unit:"Scheibe", plural:"Scheiben"},
-  salamiN:  {name:"Salami, normale Scheiben", stk:6,    unit:"Scheibe", plural:"Scheiben"}
+  salamiN:  {name:"Salami, normale Scheiben", stk:6,    unit:"Scheibe", plural:"Scheiben"},
+  salamiP:  {name:"Salami piccante",          stk:8,    unit:"Scheibe", plural:"Scheiben"},
+  schinken: {name:"Kochschinken",             pack:200, per:4,   unit:"Packung", plural:"Packungen"},
+  parma:    {name:"Parmaschinken",            pack:100, per:2,   unit:"Packung", plural:"Packungen"},
+  speck:    {name:"Pancetta oder Speck",      pack:100, per:2,   unit:"Packung", plural:"Packungen"},
+  funghi:   {name:"Champignons",              pack:250, per:3,   unit:"Schale",  plural:"Schalen"},
+  zwiebel:  {name:"Zwiebeln",                 pack:150, per:3,   unit:"Zwiebel", plural:"Zwiebeln"},
+  paprika:  {name:"Paprika",                  pack:200, per:3,   unit:"Schote",  plural:"Schoten"},
+  zucchini: {name:"Zucchini",                 pack:250, per:3,   unit:"Zucchini",plural:"Zucchini"},
+  spinat:   {name:"Blattspinat, TK",          pack:300, per:4,   unit:"Packung", plural:"Packungen"},
+  artisch:  {name:"Artischocken, eingelegt",  pack:280, per:4,   unit:"Glas",    plural:"Gl\u00e4ser"},
+  oliven:   {name:"Oliven",                   pack:200, per:6,   unit:"Glas",    plural:"Gl\u00e4ser"},
+  pepero:   {name:"Peperoni, eingelegt",      pack:200, per:6,   unit:"Glas",    plural:"Gl\u00e4ser"},
+  rucola:   {name:"Rucola",                   pack:100, per:4,   unit:"Beutel",  plural:"Beutel"},
+  cherry:   {name:"Kirschtomaten",            pack:250, per:3,   unit:"Schale",  plural:"Schalen"},
+  ei:       {name:"Ei",                       stk:1,    unit:"Ei",      plural:"Eier"}
 };
-const ING_ORDER = ["tomaten","creme","mozza","parmesan","gorgo","taleggio","salamiM","salamiN"];
-const FREI_WAHL = ["mozza","parmesan","gorgo","taleggio"];
+const ING_ORDER = ["tomaten","creme","mozza","bufala","parmesan","gorgo","taleggio",
+  "salamiM","salamiN","salamiP","schinken","parma","speck",
+  "funghi","zwiebel","paprika","zucchini","spinat","artisch","oliven","pepero","rucola","cherry","ei"];
+const FREI_WAHL = ING_ORDER.filter(id => id !== "tomaten" && id !== "creme" && id !== "salamiM" && id !== "salamiN");
 
 const VARIANTS = [
   {id:"margherita", name:"Margherita", ing:["mozza","parmesan"]},
   {id:"quattro",    name:"4 K\u00e4se",  ing:["mozza","parmesan","gorgo","taleggio"]},
   {id:"salami",     name:"Salami",     ing:["mozza","parmesan","SALAMI"]},
   {id:"spezial",    name:"Spezial",    ing:["mozza","parmesan","gorgo","SALAMI"]},
-  {id:"frei",       name:"Freie Sorte", ing:null}
+  {id:"frei",       name:"Freie Sorte", ing:null},
+
+  {id:"prosciutto", name:"Prosciutto",         group:1, ing:["mozza","parmesan","schinken"]},
+  {id:"prosfunghi", name:"Prosciutto e Funghi",group:1, ing:["mozza","parmesan","schinken","funghi"]},
+  {id:"funghiP",    name:"Funghi",             group:1, ing:["mozza","parmesan","funghi"]},
+  {id:"diavola",    name:"Diavola",            group:1, ing:["mozza","parmesan","salamiP","pepero"]},
+  {id:"capric",     name:"Capricciosa",        group:1, ing:["mozza","parmesan","schinken","funghi","artisch","oliven"]},
+  {id:"verdure",    name:"Verdure",            group:1, ing:["mozza","parmesan","paprika","zwiebel","funghi","zucchini"]},
+  {id:"parmaruc",   name:"Parma e Rucola",     group:1, ing:["mozza","parmesan","parma","rucola","cherry"]},
+  {id:"bufalaP",    name:"Bufala",             group:1, ing:["bufala","parmesan","cherry"]},
+  {id:"boscaiola",  name:"Boscaiola",          group:1, ing:["mozza","parmesan","funghi","speck","zwiebel"]},
+  {id:"fiorent",    name:"Fiorentina",         group:1, ing:["mozza","parmesan","spinat","ei"]}
 ];
+const BASE_DEFAULT = {boscaiola:"bianca", quattro:"bianca"};
+
+/* fehlende Sorten mit Standardwerten auffuellen */
+VARIANTS.forEach(v => {
+  if(S.vc[v.id] === undefined) S.vc[v.id] = 0;
+  if(S.vb[v.id] === undefined) S.vb[v.id] = BASE_DEFAULT[v.id] || "rossa";
+});
 
 function cfg(id){
   const it = ING[id], c = S.custom[id] || {};
@@ -696,9 +734,17 @@ function renderTop(){
   const vl = document.getElementById("varList");
   vl.innerHTML = "";
   let assigned = 0;
+  let groupShown = false;
   VARIANTS.forEach(v => {
     const n = S.vc[v.id] || 0;
     assigned += n;
+    if(v.group === 1 && !groupShown){
+      groupShown = true;
+      const h = document.createElement("div");
+      h.className = "grouphead";
+      h.textContent = "Weitere Sorten";
+      vl.appendChild(h);
+    }
     const row = document.createElement("div");
     row.className = "vrow" + (n ? "" : " zero");
     row.innerHTML =

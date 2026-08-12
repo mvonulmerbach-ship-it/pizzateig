@@ -49,6 +49,8 @@ Jede Sorte bekommt eine Stückzahl und einen Boden (rossa = geschälte Tomaten, 
 | Spezial | Mozzarella + Parmesan + Gorgonzola + Salami |
 | Freie Sorte | frei zusammenstellbar |
 
+Dazu zehn gängige Sorten unter „Weitere Sorten": Prosciutto, Prosciutto e Funghi, Funghi, Diavola, Capricciosa, Verdure, Parma e Rucola, Bufala, Boscaiola und Fiorentina. Fisch, Meeresfrüchte und Hawaii sind bewusst nicht dabei. Die Grammangaben dieser zehn sind Richtwerte, keine Erfahrungswerte — anders als die Werte in der Tabelle unten.
+
 Salami wird global auf Minischeiben oder normale Scheiben gestellt und gilt dann für Salami und Spezial gemeinsam.
 
 Ergiebigkeiten, alles Erfahrungswerte aus der eigenen Praxis:
