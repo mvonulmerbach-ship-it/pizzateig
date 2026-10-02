@@ -1,9 +1,16 @@
 /* Pizzaiolo – Service Worker
-   Strategie: network first, Cache als Fallback.
-   Dadurch landen Updates sofort, und die App funktioniert trotzdem offline. */
+   Strategie: network first, Cache als Fallback. Updates landen sofort,
+   ohne Netz läuft die App aus dem Cache.
 
-const CACHE = "pizzaiolo-v1";
-const CORE = [
+   WICHTIG: Alle Mini-Apps liegen auf derselben Herkunft
+   (mvonulmerbach-ship-it.github.io) und teilen sich EINEN Cache-Speicher.
+   Darum nur Caches mit dem eigenen PRAEFIX löschen – niemals fremde.
+   "::" als Trenner, damit "kaffee::" nicht auch "kaffee-nachschlagewerk::v1" trifft. */
+
+const PRAEFIX = "pizzateig::";
+const CACHE = PRAEFIX + "v1";          // bei jeder Änderung an der App hochzählen
+const ALT_PRAEFIXE = ["pizzaiolo-"];   // frühere Cache-Namen dieser App
+const KERN = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
@@ -13,26 +20,35 @@ const CORE = [
 ];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(KERN)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(namen => Promise.all(namen
+        .filter(n => (n.startsWith(PRAEFIX) && n !== CACHE) || ALT_PRAEFIXE.some(a => n.startsWith(a)))
+        .map(n => caches.delete(n))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
+  const req = e.request;
+  if (req.method !== "GET") return;
+  if (!req.url.startsWith(self.registration.scope)) return;   // nur eigene Dateien
   e.respondWith(
-    fetch(e.request)
+    fetch(req)
       .then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        if (res.ok && res.type === "basic") {
+          const kopie = res.clone();
+          caches.open(CACHE).then(c => c.put(req, kopie)).catch(() => {});
+        }
         return res;
       })
-      .catch(() => caches.match(e.request).then(hit => hit || caches.match("./index.html")))
+      .catch(() => caches.open(CACHE)
+        .then(c => c.match(req, { ignoreSearch: true })
+          .then(treffer => treffer || (req.mode === "navigate" ? c.match("./index.html") : undefined)))
+        .then(antwort => antwort || Response.error()))
   );
 });
