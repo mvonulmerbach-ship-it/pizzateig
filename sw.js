@@ -8,7 +8,7 @@
    "::" als Trenner, damit "kaffee::" nicht auch "kaffee-nachschlagewerk::v1" trifft. */
 
 const PRAEFIX = "pizzateig::";
-const CACHE = PRAEFIX + "v1";          // bei jeder Änderung an der App hochzählen
+const CACHE = PRAEFIX + "v2";          // bei jeder Änderung an der App hochzählen
 const ALT_PRAEFIXE = ["pizzaiolo-"];   // frühere Cache-Namen dieser App
 const KERN = [
   "./",

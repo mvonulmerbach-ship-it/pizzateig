@@ -12,6 +12,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Pizzaiolo">
 <title>Pizzaiolo – Teigrechner</title>
+<script>
+/* Hell/Dunkel ohne Aufblitzen: gespeicherte Wahl (pz_theme, JSON) vor dem CSS anwenden, Standard System. */
+(function(){var w="system";try{var v=localStorage.getItem("pz_theme");if(v)w=JSON.parse(v)||"system"}catch(e){}
+var d=w==="dark"||(w!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);
+document.documentElement.setAttribute("data-theme",d?"dark":"light");})();
+</script>
 <style>
 :root{
   color-scheme: light;
@@ -150,7 +156,8 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
 .vbase{margin-top:8px}
 .vbase .seg{padding:3px}
 .vbase .seg button{padding:6px 4px;font-size:12px}
-.grouphead{margin:16px 0 2px;padding-top:14px;border-top:2px solid var(--line);font-size:11px;\n  text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700}
+.grouphead{margin:16px 0 2px;padding-top:14px;border-top:2px solid var(--line);font-size:12px;
+  text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700}
 .openbar{border-radius:12px;padding:10px 12px;font-size:13.2px;font-weight:600;text-align:center}
 .openbar.ok{background:var(--good-soft);color:var(--good)}
 .openbar.warn{background:var(--warn-soft);color:var(--warn)}
@@ -167,6 +174,29 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
 .adj input::-webkit-outer-spin-button,.adj input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .adj span{font-size:11.5px;color:var(--muted);width:52px}
 .linkbtn{font-size:13px;font-weight:700;color:var(--brand);padding:4px 0}
+/* ---- 02.10.2026 (Mini-App-Ueberarbeitung S5) ----
+   Tippflaechen >= 44 px (Befund 2), Schrift >= 12 px (Befund 5), Kontrast (Befunde 3/4). */
+:root{--fill:var(--brand)}
+[data-theme="dark"]{--fill:#b5432a}   /* weisse Schrift auf #e2694c nur 3,30:1 -> aktive Flaechen dunkler */
+.tab.on,.seg button.on,.ing.on .chk{background:var(--fill)}
+.ing.on .chk{border-color:var(--fill)}
+.themebtn{min-width:44px;min-height:44px}
+.tab{min-height:44px}
+.stepper button{width:44px;height:44px}
+.stepper input{height:44px}
+.stepper.sm button{width:44px;height:44px}
+.stepper.sm input{width:44px;height:44px}
+.stepper,.stepper button{flex:none}   /* nicht unter 44 px zusammendruecken */
+.seg button,.vbase .seg button{min-height:44px}
+input[type=range]{height:44px}
+input[type=time]{min-height:44px}
+.linkbtn{min-height:44px;display:inline-flex;align-items:center}
+.adj input{height:44px}
+.res h2{color:rgba(255,255,255,.92)}
+.tile{background:rgba(0,0,0,.14)}   /* weisse Beschriftung auf hellem Kachelgrund nur 4,11:1 */
+.tile .k,.tile .s{opacity:1}
+.lab small,.tile .k,.tile .s,.day,.ing .nm small,.ing .amt small,.vname small,.adj span,footer{font-size:12px}
+th{font-size:12px}
 </style>
 </head>
 <body>
@@ -174,7 +204,7 @@ footer{text-align:center;font-size:11.5px;color:var(--muted);padding:6px 0 4px}
 
 <header>
   <div class="brand">🍕 <b>Pizzaiolo</b></div>
-  <button class="themebtn" id="themebtn" aria-label="Design wechseln">🌙</button>
+  <button class="themebtn" id="themebtn" aria-label="Erscheinungsbild: System" title="Erscheinungsbild: System">◐</button>
 </header>
 
 <div class="tabs">
@@ -976,20 +1006,30 @@ document.querySelectorAll(".tab").forEach(t => {
 });
 
 /* ---------- Theme ---------- */
+/* Dreistufig (02.10.2026): "system" | "light" | "dark", Standard System. Eine frueher
+   gespeicherte Wahl ("light"/"dark") bleibt. */
 const tb = document.getElementById("themebtn");
-function applyTheme(t){
-  document.documentElement.dataset.theme = t;
-  tb.textContent = t === "dark" ? "☀️" : "🌙";
-  document.querySelector('meta[name=theme-color]').setAttribute("content", t === "dark" ? "#131210" : "#c1442a");
+const THEME_FOLGE = ["system", "light", "dark"];
+const THEME_SYMBOL = { system: "◐", light: "☀️", dark: "🌙" };
+const THEME_NAME = { system: "System", light: "Hell", dark: "Dunkel" };
+const dunkelAbfrage = window.matchMedia("(prefers-color-scheme: dark)");
+let theme = store.get("theme", "system");
+if (!THEME_FOLGE.includes(theme)) theme = "system";
+function applyTheme(){
+  const dunkel = theme === "dark" || (theme === "system" && dunkelAbfrage.matches);
+  document.documentElement.dataset.theme = dunkel ? "dark" : "light";
+  tb.textContent = THEME_SYMBOL[theme];
+  tb.setAttribute("aria-label", "Erscheinungsbild: " + THEME_NAME[theme]);
+  tb.title = "Erscheinungsbild: " + THEME_NAME[theme];
+  document.querySelector('meta[name=theme-color]').setAttribute("content", dunkel ? "#131210" : "#c1442a");
 }
-let theme = store.get("theme", null) ||
-  (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-applyTheme(theme);
+applyTheme();
 tb.addEventListener("click", () => {
-  theme = theme === "dark" ? "light" : "dark";
+  theme = THEME_FOLGE[(THEME_FOLGE.indexOf(theme) + 1) % THEME_FOLGE.length];
   store.set("theme", theme);
-  applyTheme(theme);
+  applyTheme();
 });
+dunkelAbfrage.addEventListener("change", applyTheme);
 
 render();
 
