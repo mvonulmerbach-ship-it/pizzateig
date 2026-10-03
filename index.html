@@ -63,7 +63,7 @@ header{position:sticky;top:0;z-index:30;background:var(--bg);
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
   padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
-.card h2{margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted)}
+.card h2{margin:0 0 12px;font-size:14px;font-weight:700;color:var(--muted)}
 
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
 .row:last-child{margin-bottom:0}
@@ -237,7 +237,7 @@ th{font-size:12px}
       <div class="lab">Anzahl Ballen</div>
       <div class="stepper">
         <button data-step="balls:-1">−</button>
-        <input type="number" id="balls" value="6" min="1" max="60" inputmode="numeric">
+        <input type="number" id="balls" aria-label="Anzahl Ballen" value="6" min="1" max="60" inputmode="numeric">
         <button data-step="balls:1">+</button>
       </div>
     </div>
@@ -245,7 +245,7 @@ th{font-size:12px}
       <div class="lab">Ballengewicht in g<small>250 g = ca. 30 cm Pizza</small></div>
       <div class="stepper">
         <button data-step="ballw:-5">−</button>
-        <input type="number" id="ballw" value="270" min="150" max="400" step="5" inputmode="numeric">
+        <input type="number" id="ballw" aria-label="Ballengewicht in g" value="270" min="150" max="400" step="5" inputmode="numeric">
         <button data-step="ballw:5">+</button>
       </div>
     </div>
@@ -255,15 +255,15 @@ th{font-size:12px}
     <h2>Mehl &amp; Teig</h2>
     <div class="slot">
       <div class="row"><div class="lab">Eiweiß im Mehl<small id="proteinHint"></small></div><div class="val" id="vProtein">9,8 g</div></div>
-      <input type="range" id="protein" min="8.5" max="15" step="0.1" value="9.8">
+      <input type="range" id="protein" aria-label="Eiweiß im Mehl" min="8.5" max="15" step="0.1" value="9.8">
     </div>
     <div class="slot">
       <div class="row"><div class="lab">Hydration<small id="hydHint"></small></div><div class="val" id="vHyd">59 %</div></div>
-      <input type="range" id="hyd" min="52" max="72" step="0.5" value="59">
+      <input type="range" id="hyd" aria-label="Hydration" min="52" max="72" step="0.5" value="59">
     </div>
     <div class="slot">
       <div class="row"><div class="lab">Salz</div><div class="val" id="vSalt">3,2 %</div></div>
-      <input type="range" id="salt" min="2" max="4" step="0.1" value="3.2">
+      <input type="range" id="salt" aria-label="Salz" min="2" max="4" step="0.1" value="3.2">
     </div>
   </div>
 
@@ -290,13 +290,13 @@ th{font-size:12px}
     <div id="warmBox" class="hide">
       <div class="slot">
         <div class="row"><div class="lab">Gesamtgärzeit<small>Kneten bis Backen</small></div><div class="val" id="vTime">8 h</div></div>
-        <input type="range" id="time" min="3" max="30" step="0.5" value="8">
+        <input type="range" id="time" aria-label="Gesamtgärzeit" min="3" max="30" step="0.5" value="8">
       </div>
     </div>
 
     <div class="slot">
       <div class="row"><div class="lab">Küchentemperatur<small id="tempHint"></small></div><div class="val" id="vTemp">24 °C</div></div>
-      <input type="range" id="temp" min="14" max="36" step="0.5" value="24">
+      <input type="range" id="temp" aria-label="Küchentemperatur" min="14" max="36" step="0.5" value="24">
     </div>
 
     <div class="slot">
@@ -325,7 +325,7 @@ th{font-size:12px}
     <h2>Wann soll die erste Pizza im Ofen sein?</h2>
     <div class="row" style="margin-bottom:0">
       <div class="lab">Backbeginn</div>
-      <input type="time" id="bakeTime" value="18:30">
+      <input type="time" id="bakeTime" aria-label="Backbeginn" value="18:30">
     </div>
   </div>
 
@@ -356,7 +356,7 @@ th{font-size:12px}
       <div class="lab">Teigballen gesamt<small>identisch mit dem Teigrechner</small></div>
       <div class="stepper">
         <button data-step="balls:-1">&minus;</button>
-        <input type="number" id="balls2" value="6" min="1" max="60" inputmode="numeric">
+        <input type="number" id="balls2" aria-label="Teigballen gesamt" value="6" min="1" max="60" inputmode="numeric">
         <button data-step="balls:1">+</button>
       </div>
     </div>
@@ -782,7 +782,7 @@ function renderTop(){
         '<div class="vname">' + v.name + '<small>' + variantLabel(v) + '</small></div>' +
         '<div class="stepper sm">' +
           '<button data-vc="' + v.id + ':-1">\u2212</button>' +
-          '<input type="number" min="0" max="60" inputmode="numeric" data-vcin="' + v.id + '" value="' + n + '">' +
+          '<input type="number" min="0" max="60" inputmode="numeric" aria-label="Anzahl ' + v.name + '" data-vcin="' + v.id + '" value="' + n + '">' +
           '<button data-vc="' + v.id + ':1">+</button>' +
         '</div>' +
       '</div>' +
@@ -889,13 +889,13 @@ function renderTop(){
       d.className = "adj";
       if(it.stk !== undefined){
         d.innerHTML = '<div class="nm">' + it.name + '</div>' +
-          '<input type="number" min="1" max="40" step="1" data-adj="' + id + ':stk" value="' + c.stk + '">' +
+          '<input type="number" min="1" max="40" step="1" aria-label="' + it.name + ' je Pizza" data-adj="' + id + ':stk" value="' + c.stk + '">' +
           '<span>je Pizza</span>';
       } else {
         d.innerHTML = '<div class="nm">' + it.name + '</div>' +
-          '<input type="number" min="50" max="2500" step="10" data-adj="' + id + ':pack" value="' + c.pack + '">' +
+          '<input type="number" min="50" max="2500" step="10" aria-label="' + it.name + ' g je Packung" data-adj="' + id + ':pack" value="' + c.pack + '">' +
           '<span>g je Packung</span>' +
-          '<input type="number" min="0.5" max="30" step="0.5" data-adj="' + id + ':per" value="' + c.per + '">' +
+          '<input type="number" min="0.5" max="30" step="0.5" aria-label="' + it.name + ' Pizzen" data-adj="' + id + ':per" value="' + c.per + '">' +
           '<span>Pizzen</span>';
       }
       adj.appendChild(d);
